@@ -7,6 +7,8 @@ background bubble, dark tag) and **render** the looping result to a **green-scre
 
 Runs entirely in the browser — no backend, no accounts, nothing uploaded anywhere.
 
+![Instatag Video Render](docs/screenshot.jpg)
+
 ## Features
 
 - 11 entrance/exit animations (Fade, Zoom, Blur, Slide, Spring, Pop, Swing, Flip, …)
