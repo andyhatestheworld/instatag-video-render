@@ -159,14 +159,15 @@ export function drawTag(ctx: CanvasRenderingContext2D, size: number, o: RenderOp
   let badgeAlpha: number;
 
   if (o.typewriter) {
-    // Each letter cascades in: drops from just above its slot, fading in with a
-    // small luminescent glow + blur that clears as it lands.
-    const DROP = 22; // px (1024-base) the letter falls from above
-    const GLOW_BLUR = 5; // px of blur that clears
-    const GLOW = 16; // px of luminescent halo
-    const SPAN = 1.5; // letters overlap slightly for a smooth cascade
-    const glow = o.darkMode ? "rgba(120,170,255,A)" : "rgba(210,235,255,A)";
-    // -1: letters fall in from above; +1: they rise in from below.
+    // Each letter materializes out of a soft, smoky blur: it starts larger and
+    // very diffuse, then condenses + sharpens into place (with a faint glow).
+    const DROP = 16; // px (1024-base) the letter travels into place
+    const SMOKE_BLUR = 26; // px of soft blur the letter emerges from
+    const GLOW = 14; // px of faint halo while forming
+    const GROW = 0.24; // how much bigger the letter starts (puff -> condense)
+    const SPAN = 2.0; // the softness lingers across ~2 letters
+    const glow = o.darkMode ? "rgba(140,180,255,A)" : "rgba(235,245,255,A)";
+    // -1: letters come in from above; +1: from below.
     const dir = o.revealFrom === "top" ? -1 : 1;
 
     ctx.fillStyle = textColor;
@@ -174,17 +175,23 @@ export function drawTag(ctx: CanvasRenderingContext2D, size: number, o: RenderOp
       const sub = clamp01((o.charReveal - i) / SPAN);
       if (sub <= 0) continue;
       const e = easeOutCubic(sub);
+      const ch = o.fullText[i];
       const x = left + ctx.measureText(o.fullText.slice(0, i)).width;
+      const lw = ctx.measureText(ch).width;
       const oy = dir * (1 - e) * DROP * s; // travel into the baseline
+      const scale = 1 + (1 - e) * GROW; // start bigger, condense to 1
       ctx.save();
       ctx.globalAlpha = groupAlpha * e;
-      const blurPx = (1 - e) * GLOW_BLUR * s;
+      const blurPx = (1 - e) * SMOKE_BLUR * s;
       if (blurPx > 0.1) ctx.filter = `blur(${blurPx}px)`;
       if (sub < 1) {
-        ctx.shadowColor = glow.replace("A", String(0.9 * (1 - e)));
+        ctx.shadowColor = glow.replace("A", String(0.5 * (1 - e)));
         ctx.shadowBlur = (1 - e) * GLOW * s;
       }
-      ctx.fillText(o.fullText[i], x, oy);
+      // Scale around the letter's own centre so it condenses in place.
+      ctx.translate(x + lw / 2, oy);
+      ctx.scale(scale, scale);
+      ctx.fillText(ch, -lw / 2, 0);
       ctx.restore();
     }
     // Badge appears as the last letter lands.

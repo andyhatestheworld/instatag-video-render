@@ -6,7 +6,7 @@ const easeOutCubic = (p: number) => 1 - Math.pow(1 - p, 3);
 
 // Subtle bottom-up reveal applied to the text inside the bubble (non-typewriter).
 const TEXT_RISE = 26; // px (1024-base) the text rises into place
-const TEXT_BLUR = 7; // px (1024-base) of blur that clears as it settles
+const TEXT_BLUR = 16; // px (1024-base) of soft blur that clears as it settles
 
 /**
  * Turns the app state + elapsed time into a plain RenderOptions object.
